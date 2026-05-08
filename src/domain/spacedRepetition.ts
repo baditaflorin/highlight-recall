@@ -1,0 +1,62 @@
+import type { Highlight, ReviewGrade, ReviewState } from './types'
+import { addDays, nowIso } from './date'
+
+export const initialReviewState = (createdAt = nowIso()): ReviewState => ({
+  dueAt: createdAt,
+  intervalDays: 0,
+  ease: 2.5,
+  repetitions: 0,
+  lapses: 0,
+})
+
+export function scheduleReview(state: ReviewState, grade: ReviewGrade, reviewedAt = new Date()) {
+  const next = { ...state }
+  const oldEase = state.ease
+
+  if (grade === 'again') {
+    next.repetitions = 0
+    next.intervalDays = 0
+    next.ease = Math.max(1.3, oldEase - 0.2)
+    next.lapses = state.lapses + 1
+  }
+
+  if (grade === 'hard') {
+    next.repetitions = state.repetitions + 1
+    next.intervalDays = Math.max(1, Math.ceil(Math.max(1, state.intervalDays) * 1.2))
+    next.ease = Math.max(1.3, oldEase - 0.15)
+  }
+
+  if (grade === 'good') {
+    next.repetitions = state.repetitions + 1
+    next.intervalDays =
+      state.repetitions === 0 ? 1 : Math.ceil(Math.max(1, state.intervalDays) * oldEase)
+    next.ease = oldEase
+  }
+
+  if (grade === 'easy') {
+    next.repetitions = state.repetitions + 1
+    next.intervalDays =
+      state.repetitions === 0 ? 3 : Math.ceil(Math.max(1, state.intervalDays) * (oldEase + 0.3))
+    next.ease = Math.min(3.2, oldEase + 0.15)
+  }
+
+  const dueAt = addDays(reviewedAt, next.intervalDays)
+  next.dueAt = dueAt.toISOString()
+  next.lastReviewedAt = reviewedAt.toISOString()
+
+  return next
+}
+
+export function dueHighlights(highlights: Highlight[], at = new Date()) {
+  return highlights
+    .filter((highlight) => new Date(highlight.review.dueAt).getTime() <= at.getTime())
+    .sort((a, b) => new Date(a.review.dueAt).getTime() - new Date(b.review.dueAt).getTime())
+}
+
+export function reviewLoad(highlights: Highlight[], at = new Date()) {
+  const due = dueHighlights(highlights, at).length
+  const learned = highlights.filter((highlight) => highlight.review.repetitions > 0).length
+  const lapses = highlights.reduce((total, highlight) => total + highlight.review.lapses, 0)
+
+  return { due, learned, lapses }
+}
