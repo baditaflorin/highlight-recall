@@ -1,0 +1,1 @@
+import{n as e}from"./index-K65vLkbt.js";import{t}from"./text-COIaI2kN.js";async function n(n){let r=await n.arrayBuffer(),i=await n.text();return t({fileName:n.name,kind:`text`,checksum:await e(r),sections:[{text:i,location:`Plain text`}]})}export{n as importText};

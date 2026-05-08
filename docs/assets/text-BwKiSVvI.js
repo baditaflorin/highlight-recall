@@ -1,1 +1,0 @@
-import{n as e}from"./index-DwgIxBQ6.js";import{t}from"./text-C29VtcBZ.js";async function n(n){let r=await n.arrayBuffer(),i=await n.text();return t({fileName:n.name,kind:`text`,checksum:await e(r),sections:[{text:i,location:`Plain text`}]})}export{n as importText};
