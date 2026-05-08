@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-make test
-make build
-make smoke
+# Git passes ref updates on stdin. Drain them so browser tooling never reads hook metadata.
+while read -r _; do
+  :
+done || true
+
+make test </dev/null
+make build </dev/null
+make smoke </dev/null
