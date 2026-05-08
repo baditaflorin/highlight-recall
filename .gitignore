@@ -1,0 +1,38 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build / reports
+dist/
+tmp/
+coverage/
+playwright-report/
+test-results/
+*.log
+
+# Go / Python placeholders for repo policy
+bin/
+*.test
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+
+# Keep docs/ tracked: GitHub Pages serves the built app from docs/.

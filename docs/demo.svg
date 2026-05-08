@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Highlight Recall demo">
+  <rect width="1200" height="675" fill="#f4f7f1"/>
+  <rect x="64" y="50" width="1072" height="575" rx="8" fill="#ffffff" opacity=".82"/>
+  <rect x="100" y="92" width="72" height="72" rx="8" fill="#1f6f5f"/>
+  <path d="M123 111h31a20 20 0 0 1 20 20v34h-37a14 14 0 0 0-14 14v-68Z" fill="#f8fbf8"/>
+  <text x="194" y="123" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#647267">LOCAL-FIRST READWISE ALTERNATIVE</text>
+  <text x="194" y="176" font-family="Arial, sans-serif" font-size="58" font-weight="800" fill="#15221c">Highlight Recall</text>
+  <rect x="100" y="232" width="475" height="262" rx="8" fill="#f8faf7" stroke="#dfe8df"/>
+  <text x="126" y="278" font-family="Arial, sans-serif" font-size="26" font-weight="800" fill="#172033">Daily review</text>
+  <text x="126" y="330" font-family="Georgia, serif" font-size="25" fill="#172033">"Your highlights should come back</text>
+  <text x="126" y="366" font-family="Georgia, serif" font-size="25" fill="#172033">when they matter."</text>
+  <rect x="126" y="416" width="92" height="44" rx="8" fill="#b54645"/>
+  <rect x="230" y="416" width="92" height="44" rx="8" fill="#8c6537"/>
+  <rect x="334" y="416" width="92" height="44" rx="8" fill="#1f6f5f"/>
+  <rect x="438" y="416" width="92" height="44" rx="8" fill="#315f91"/>
+  <text x="151" y="445" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#fff">Again</text>
+  <text x="259" y="445" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#fff">Hard</text>
+  <text x="364" y="445" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#fff">Good</text>
+  <text x="471" y="445" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#fff">Easy</text>
+  <rect x="610" y="232" width="490" height="262" rx="8" fill="#eef5f1" stroke="#dfe8df"/>
+  <text x="638" y="278" font-family="Arial, sans-serif" font-size="26" font-weight="800" fill="#172033">Import and search locally</text>
+  <rect x="638" y="312" width="410" height="54" rx="8" fill="#ffffff" stroke="#dfe8df"/>
+  <text x="664" y="346" font-family="Arial, sans-serif" font-size="18" fill="#69786e">Search highlights, notes, and tags</text>
+  <rect x="638" y="394" width="362" height="70" rx="8" fill="#ffffff" stroke="#dfe8df"/>
+  <text x="662" y="424" font-family="Arial, sans-serif" font-size="17" fill="#172033">Files never leave this browser.</text>
+  <text x="662" y="450" font-family="Arial, sans-serif" font-size="15" fill="#69786e">EPUB · PDF · TXT · Markdown</text>
+  <text x="100" y="560" font-family="Arial, sans-serif" font-size="18" fill="#596a61">https://github.com/baditaflorin/highlight-recall</text>
+  <text x="100" y="590" font-family="Arial, sans-serif" font-size="18" fill="#596a61">https://www.paypal.com/paypalme/florinbadita</text>
+</svg>

@@ -1,0 +1,9 @@
+title = "highlight-recall gitleaks config"
+
+[allowlist]
+description = "Project URLs and placeholders"
+regexes = [
+  '''https://www\.paypal\.com/paypalme/florinbadita''',
+  '''https://github\.com/baditaflorin/highlight-recall''',
+  '''changeme|example|placeholder'''
+]
