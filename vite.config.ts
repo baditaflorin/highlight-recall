@@ -15,7 +15,10 @@ function gitValue(command: string, fallback: string) {
   }
 }
 
-const commitSha = gitValue('git rev-parse --short HEAD', 'dev')
+const commitSha = gitValue(
+  "git log --format=%h --invert-grep --grep='^build: publish pages assets' -1",
+  'dev',
+)
 
 // https://vite.dev/config/
 export default defineConfig({
