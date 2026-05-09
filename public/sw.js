@@ -1,4 +1,4 @@
-const CACHE_NAME = 'highlight-recall-v0.1.0'
+const CACHE_NAME = 'highlight-recall-v0.2.0'
 const APP_SCOPE = '/highlight-recall/'
 const CORE_ASSETS = [APP_SCOPE, `${APP_SCOPE}manifest.webmanifest`, `${APP_SCOPE}favicon.svg`]
 
