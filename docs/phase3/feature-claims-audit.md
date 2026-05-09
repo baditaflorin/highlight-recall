@@ -13,3 +13,19 @@
 | ADR 0013       | At least one Playwright happy path.                                                  | shipped       | `tests/e2e/app.spec.ts`.                                                          | Keep and broaden.              |
 
 Mismatches before: 4 partial, 0 false, 5 shipped.
+
+## After Implementation
+
+| Claim location | Claim                                                                                 | Status after | Evidence                                                                 |
+| -------------- | ------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------ |
+| README         | Imports EPUB, PDF, TXT, Markdown, and state files in browser.                         | shipped      | Picker, drag/drop, format detection, and JSON restore are wired.         |
+| README         | Stores source documents, highlights, review state, activity, preferences, embeddings. | shipped      | IndexedDB stores library rows/activity; localStorage stores preferences. |
+| README         | Resurfaces due highlights with SM-2-style scheduler.                                  | shipped      | Review smoke path covers scheduling.                                     |
+| README         | Searches highlights locally with MiniSearch and optional embeddings.                  | shipped      | Search smoke path covers user-imported text.                             |
+| README         | Shows version and commit on live app.                                                 | shipped      | E2E checks both footer values.                                           |
+| README         | Local-first Readwise-style app.                                                       | shipped      | Import/export/restore are all local browser operations.                  |
+| Privacy doc    | User can export and restore JSON backup manually.                                     | shipped      | State contract documented; restore validates before persistence.         |
+| ADR 0006       | Local LLM gracefully falls back to deterministic recall prompt.                       | shipped      | Review control keeps fallback copyable.                                  |
+| ADR 0013       | At least one Playwright happy path.                                                   | shipped      | Smoke covers restore, clipboard import, review, search, settings.        |
+
+Mismatches after: 0 partial, 0 false, 9 shipped.

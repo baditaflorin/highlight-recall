@@ -50,6 +50,15 @@
 - Smoke test covers import, review, search, copy, and state restore.
 - GitHub Pages publishes `v0.2.0` with version/commit visible.
 
+## After Implementation Summary
+
+- Input audit: 12 green, 0 yellow, 0 red, 3 gray documented out of scope.
+- Output audit: 6 green, 0 yellow, 0 red, 3 gray documented out of scope.
+- Controls audit: 20 green, 0 yellow, 0 red.
+- Feature claims audit: 9 shipped, 0 partial, 0 false.
+- Codebase audit: 0 source TODO/FIXME/XXX/HACK; 0 source `any`; 0 `@ts-ignore`.
+- Smoke coverage now restores a backup, imports clipboard text, reviews, searches, copies a review card, and verifies a persisted setting.
+
 ## Out Of Scope
 
 - Cross-device sync.

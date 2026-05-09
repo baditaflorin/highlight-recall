@@ -17,3 +17,30 @@
 | Semantic search icon       | yellow        | Disabled until embeddings exist.    | User gets no explanation when disabled.                                                      | Add title/status.                                          |
 
 Before counts: green 4, yellow 9, red 0.
+
+## After Implementation
+
+| Control                               | Status after | Evidence                                                                                |
+| ------------------------------------- | ------------ | --------------------------------------------------------------------------------------- |
+| Star on GitHub                        | green        | Anchor remains visible and points to https://github.com/baditaflorin/highlight-recall.  |
+| Support                               | green        | Anchor remains visible and points to https://www.paypal.com/paypalme/florinbadita.      |
+| Import EPUB/PDF/TXT/JSON              | green        | One picker handles files, backups, batches, and recoverable import errors.              |
+| Import zone drag/drop                 | green        | Drop handler uses the same importer as the file picker.                                 |
+| Add highlight                         | green        | Empty/too-short input now gives visible status; HTML paste is cleaned first.            |
+| Import clipboard                      | green        | Clipboard read imports text and gives permission fallback guidance.                     |
+| Load sample                           | green        | Creates real persisted sample highlights.                                               |
+| Build semantic index                  | green        | Counts missing embeddings, explains existing/failed states, and avoids silent failure.  |
+| Download state                        | green        | Downloads canonical state JSON and records activity.                                    |
+| Copy state                            | green        | Copies canonical state JSON and records activity.                                       |
+| Delete highlight                      | green        | Deletes persisted row and records activity.                                             |
+| Clear local library                   | green        | Confirmation is default; persisted setting can disable it deliberately.                 |
+| AI recall prompt                      | green        | Browser model failure falls back to a deterministic prompt that can be copied.          |
+| Copy card                             | green        | Current review card/prompt can be copied with visible status.                           |
+| Move to next due highlight            | green        | Rotates queue index.                                                                    |
+| Review grade buttons                  | green        | Persist schedule updates and record review activity.                                    |
+| Search input                          | green        | Searches user highlights locally.                                                       |
+| Semantic search icon                  | green        | Disabled state has title/status; lexical search remains usable.                         |
+| Copy search result                    | green        | Result text can be copied with visible status.                                          |
+| Confirm before clearing local library | green        | Setting persists through reload and directly controls whether clear shows confirmation. |
+
+After counts: green 20, yellow 0, red 0.

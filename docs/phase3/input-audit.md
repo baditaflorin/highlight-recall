@@ -21,3 +21,25 @@ Status key: green = works end-to-end, yellow = partial, red = claimed/built but 
 | Deep links/share state    | gray          | Not built.                                                                                                                             | Not necessary for personal reading library v1.                                 | Out of scope except small copied text.                              |
 
 Before counts: green 2, yellow 5, red 1, gray 7.
+
+## After Implementation
+
+| Input pathway             | Status after | Evidence                                                                                   |
+| ------------------------- | ------------ | ------------------------------------------------------------------------------------------ |
+| File picker: EPUB         | green        | Same importer, now routed through format sniffing and per-file recoverable batch errors.   |
+| File picker: PDF          | green        | Text PDFs import; scanned/zero-text PDFs get reading-domain next-step guidance.            |
+| File picker: TXT/Markdown | green        | Plain-text importer remains first-class and handles UTF-8 BOM and Windows-1252 fallback.   |
+| Multi-file upload         | green        | Batch imports continue after per-file failure and report successes plus issues.            |
+| Drag and drop             | green        | Import zone drop handler uses the same file pipeline as the picker.                        |
+| Paste text                | green        | Manual paste remains available with explicit empty/too-short status.                       |
+| Paste HTML                | green        | Clipboard HTML pasted into the manual box is stripped to readable text before import.      |
+| Clipboard read button     | green        | Button reads clipboard text with permission failure fallback to manual paste.              |
+| URL import                | gray         | Permanently out of scope for Mode A because browser CORS makes arbitrary fetch unreliable. |
+| Mobile picker             | green        | Native multi-file input remains available and accepts the shipped formats.                 |
+| Folder import             | gray         | Out of scope; no README or in-app claim.                                                   |
+| Sample/demo loader        | green        | Sample loader creates a real import through the same persistence path.                     |
+| Imported state restore    | green        | Versioned state JSON is validated with zod and restores documents/highlights/activity.     |
+| Autosave restore          | green        | IndexedDB documents/highlights/activity restore on reload; preferences use localStorage.   |
+| Deep links/share state    | gray         | Out of scope because full libraries are not URL-sized.                                     |
+
+After counts: green 12, yellow 0, red 0, gray 3 documented out of scope.

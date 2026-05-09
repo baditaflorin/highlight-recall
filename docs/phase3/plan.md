@@ -30,3 +30,32 @@ Ranked by real-user impact on the audit findings.
 | 24   | 24, 25       | Enumerate reachable states in docs.                                    | `docs/phase3/states.md` exists and matches UI states.                |
 
 Deferred with rationale: URL import, folder import, full-library share URLs, CSV export, OCR, and server/API output remain out of scope for Mode A completeness.
+
+## Implementation Status
+
+| Rank | Status | Evidence                                                                               |
+| ---- | ------ | -------------------------------------------------------------------------------------- |
+| 1    | done   | `src/domain/state.ts`, `src/domain/state.test.ts`, JSON restore in `LibraryPanel`.     |
+| 2    | done   | State and preferences imports are zod-validated before use.                            |
+| 3    | done   | `handleFiles` summarizes successes and per-file failures.                              |
+| 4    | done   | `src/importers/detect.ts` checks extension, MIME, and magic bytes.                     |
+| 5    | done   | Import label handles drag/drop through the same pipeline.                              |
+| 6    | done   | Clipboard button and HTML paste normalization are wired.                               |
+| 7    | done   | Sample loader imports through the normal save path.                                    |
+| 8    | done   | `src/domain/errors.ts` maps file failures into what/why/now-what messages.             |
+| 9    | done   | Zero-highlight PDF/text outcomes surface next-step guidance.                           |
+| 10   | done   | Review card copy control with visible status.                                          |
+| 11   | done   | Search result copy control with visible status.                                        |
+| 12   | done   | Copy state uses the canonical state serializer.                                        |
+| 13   | done   | Semantic index progress shows checked and missing counts.                              |
+| 14   | done   | AI prompt fallback stays visible and copyable.                                         |
+| 15   | done   | Clear confirmation is default and controlled by a persisted setting.                   |
+| 16   | done   | Activity log records imports, restores, exports, copies, reviews, deletes, and clears. |
+| 17   | done   | IndexedDB v2 migration creates activity and removes unused settings store.             |
+| 18   | done   | State serialization, parsing, and summaries are single-source modules.                 |
+| 19   | done   | Unused settings helpers and `AppMeta` were removed.                                    |
+| 20   | done   | User-facing import failures use one error mapper.                                      |
+| 21   | done   | README includes verified checklist and limitations.                                    |
+| 22   | done   | Smoke path expanded to real-user restore/import/review/search/settings flow.           |
+| 23   | done   | Stranger test documented in `docs/phase3/stranger-test.md`.                            |
+| 24   | done   | Reachable state taxonomy documented in `docs/phase3/states.md`.                        |

@@ -50,3 +50,20 @@ No source TODO/FIXME/XXX/HACK occurrences were found outside generated `docs/ass
 - No test for batch partial failure.
 - No test for clipboard/copy paths.
 - Smoke test covers manual add, review, search only.
+
+## After Implementation
+
+| Metric                             | Before | After   | Evidence                                                             |
+| ---------------------------------- | ------ | ------- | -------------------------------------------------------------------- | ------------------------------------------ | --- | ------------------------------------ |
+| Source TODO/FIXME/XXX/HACK         | 0      | 0       | `rg "TODO                                                            | FIXME                                      | XXX | HACK" src tests` returns no matches. |
+| `any` / `@ts-ignore` in source     | 0      | 0       | `rg "\\bany\\b                                                       | @ts-ignore" src tests` returns no matches. |
+| Unused `AppMeta` type              | 1      | 0       | Removed while introducing canonical state metadata.                  |
+| Unused settings IndexedDB helpers  | 2      | 0       | Removed; real preferences now live in `src/storage/preferences.ts`.  |
+| Canonical state modules            | 0      | 1       | `src/domain/state.ts` owns validation, serialization, and summaries. |
+| Boundary validation tests          | 0      | 3       | State import, format detection, and preferences storage tests added. |
+| Playwright real-user path coverage | 1 path | 5 paths | Restore, clipboard import, review, search, and settings persistence. |
+
+Remaining accepted debt:
+
+- `LibraryPanel.tsx` is still the largest UI module because it owns the import workspace. It now delegates parsing, state validation, export delivery, sample data, errors, and persistence to separate modules; splitting it further would be mostly presentational churn.
+- AI dynamic imports still require library boundary casts in `src/ai/embeddings.ts`; ADR 0069 accepts that as a typed boundary around third-party model loading.

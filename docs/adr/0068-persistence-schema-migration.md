@@ -10,11 +10,11 @@ IndexedDB v1 persisted documents/highlights without activity history or import/r
 
 ## Decision
 
-Bump IndexedDB to v2 and add an `activity` store. State imports replace documents/highlights/activity through a single storage operation. Future DB changes must add explicit upgrade branches.
+Bump IndexedDB to v2 and add an `activity` store. State imports replace documents/highlights/activity through a single storage operation. Local preferences live in versioned localStorage because they are small browser UI choices rather than library records. Future DB or preferences changes must add explicit schema branches.
 
 ## Consequences
 
-Existing v1 users keep documents/highlights and gain activity history on next load.
+Existing v1 users keep documents/highlights and gain activity history on next load. Preferences fall back to safe defaults if the stored shape is incompatible.
 
 ## Alternatives Considered
 
