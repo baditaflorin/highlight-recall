@@ -1,78 +1,239 @@
-import { Download, FileUp, Library, Plus, Trash2, WandSparkles } from 'lucide-react'
-import { useState } from 'react'
-import { nowIso } from '../../domain/date'
-import { downloadJson, exportLibrary } from '../../domain/export'
-import { createId } from '../../domain/id'
-import { initialReviewState } from '../../domain/spacedRepetition'
-import type { Highlight, ImportResult, SourceDocument } from '../../domain/types'
+import {
+  ClipboardPaste,
+  Copy,
+  Download,
+  FileUp,
+  Library,
+  Plus,
+  Trash2,
+  WandSparkles,
+} from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { importErrorMessage, zeroHighlightMessage } from '../../domain/errors'
+import { copyText, downloadJson } from '../../domain/export'
+import { createSampleImport } from '../../domain/sample'
+import {
+  buildLibraryState,
+  parseLibraryState,
+  serializeLibraryState,
+  stateSummary,
+} from '../../domain/state'
+import type { Activity, Highlight, ImportResult, SourceDocument } from '../../domain/types'
+import { detectFileKind } from '../../importers/detect'
 import { importFile } from '../../importers'
 import { enrichMissingEmbeddings } from '../../ai/embeddings'
+import { importTextContent } from '../../importers/text'
 
 type Props = {
   documents: SourceDocument[]
   highlights: Highlight[]
+  activity: Activity[]
   onImport: (result: ImportResult) => Promise<void>
   onHighlightsUpdate: (highlights: Highlight[]) => Promise<void>
-  onManualHighlight: (highlight: Highlight) => Promise<void>
   onDeleteHighlight: (id: string) => Promise<void>
   onClear: () => Promise<void>
+  onRestore: (state: {
+    documents: SourceDocument[]
+    highlights: Highlight[]
+    activity: Activity[]
+    detail: string
+  }) => Promise<void>
 }
 
 export function LibraryPanel({
   documents,
   highlights,
+  activity,
   onImport,
   onHighlightsUpdate,
-  onManualHighlight,
   onDeleteHighlight,
   onClear,
+  onRestore,
 }: Props) {
   const [status, setStatus] = useState('')
   const [manualText, setManualText] = useState('')
   const [manualNote, setManualNote] = useState('')
   const [embeddingProgress, setEmbeddingProgress] = useState('')
+  const [isDragging, setIsDragging] = useState(false)
+  const stateJson = useMemo(
+    () =>
+      serializeLibraryState(
+        buildLibraryState({
+          documents,
+          highlights,
+          activity,
+          version: __APP_VERSION__,
+          commit: __COMMIT_SHA__,
+        }),
+      ),
+    [activity, documents, highlights],
+  )
 
-  async function handleFiles(files: FileList | null) {
-    if (!files?.length) return
+  async function restoreStateFile(file: File) {
+    const state = parseLibraryState(await file.text())
+    await onRestore({
+      documents: state.documents,
+      highlights: state.highlights,
+      activity: state.activity,
+      detail: `${file.name}: ${stateSummary(state)}`,
+    })
+    setStatus(`Restored ${stateSummary(state)} from ${file.name}`)
+  }
 
-    for (const file of [...files]) {
-      setStatus(`Importing ${file.name}`)
-      const result = await importFile(file)
-      await onImport(result)
-      setStatus(`Imported ${result.highlights.length} highlights from ${file.name}`)
+  async function handleFiles(files: Iterable<File> | null) {
+    const batch = files ? [...files] : []
+    if (!batch.length) return
+
+    let imported = 0
+    let restored = 0
+    const failures: string[] = []
+
+    for (const file of batch) {
+      try {
+        setStatus(`Importing ${file.name}`)
+        const kind = await detectFileKind(file)
+
+        if (kind === 'state') {
+          await restoreStateFile(file)
+          restored += 1
+          continue
+        }
+
+        const result = await importFile(file)
+        if (result.highlights.length === 0) {
+          const message = zeroHighlightMessage(file.name, result.document.kind)
+          failures.push(`${message.title}. ${message.nextStep}`)
+          continue
+        }
+        await onImport(result)
+        imported += result.highlights.length
+      } catch (error) {
+        const message = importErrorMessage(error, file.name)
+        failures.push(`${message.title}. ${message.nextStep}`)
+      }
     }
+
+    const summary = [
+      imported ? `${imported} highlights imported` : '',
+      restored ? `${restored} backup restored` : '',
+      failures.length
+        ? `${failures.length} issue${failures.length === 1 ? '' : 's'}: ${failures.join(' ')}`
+        : '',
+    ]
+      .filter(Boolean)
+      .join(' · ')
+    setStatus(summary || 'Nothing imported')
   }
 
   async function addManualHighlight() {
     const text = manualText.trim()
-    if (!text) return
+    if (!text) {
+      setStatus('Paste at least one sentence or paragraph to add a highlight.')
+      return
+    }
 
-    const createdAt = nowIso()
-    await onManualHighlight({
-      id: createId('hl'),
-      documentId: 'manual',
+    const result = importTextContent({
       text,
-      note: manualNote.trim() || undefined,
-      tags: ['manual'],
-      createdAt,
-      updatedAt: createdAt,
-      review: initialReviewState(createdAt),
+      fileName: 'manual-paste.txt',
+      title: 'Manual paste',
     })
+    const note = manualNote.trim()
+    const withNote = {
+      ...result,
+      highlights: result.highlights.map((highlight) => ({
+        ...highlight,
+        note: note || undefined,
+        tags: [...highlight.tags, 'manual'],
+      })),
+    }
+
+    if (withNote.highlights.length === 0) {
+      setStatus('That text was too short for a review card. Paste a full sentence or paragraph.')
+      return
+    }
+
+    await onImport(withNote)
+    setStatus(
+      `Added ${withNote.highlights.length} manual highlight${withNote.highlights.length === 1 ? '' : 's'}`,
+    )
     setManualText('')
     setManualNote('')
   }
 
   async function buildEmbeddings() {
+    const missing = highlights.filter((highlight) => !highlight.embedding?.length).length
+    if (missing === 0) {
+      setEmbeddingProgress('Semantic index already covers every highlight')
+      return
+    }
+
     setEmbeddingProgress('Starting semantic model')
     try {
       const enriched = await enrichMissingEmbeddings(highlights, (done) => {
-        setEmbeddingProgress(`${done} / ${highlights.length} embedded`)
+        setEmbeddingProgress(
+          `${done} / ${highlights.length} checked · ${missing} needed embeddings`,
+        )
       })
       await onHighlightsUpdate(enriched)
       setEmbeddingProgress('Semantic index ready')
     } catch {
       setEmbeddingProgress('Semantic model unavailable in this browser; lexical search still works')
     }
+  }
+
+  async function importClipboard() {
+    try {
+      const clipboardItems = await navigator.clipboard.readText()
+      const text = clipboardItems.trim()
+      if (!text) {
+        setStatus('Clipboard is empty. Copy a passage first, then try again.')
+        return
+      }
+      const result = importTextContent({
+        text,
+        fileName: 'clipboard.txt',
+        title: 'Clipboard import',
+      })
+      if (result.highlights.length === 0) {
+        setStatus(
+          'Clipboard text was too short for a review card. Copy a full sentence or paragraph.',
+        )
+        return
+      }
+      await onImport(result)
+      setStatus(`Imported ${result.highlights.length} highlights from clipboard`)
+    } catch {
+      setStatus('Clipboard permission was blocked. Paste the text into the manual box instead.')
+    }
+  }
+
+  async function copyState() {
+    try {
+      await copyText(stateJson)
+      setStatus('Copied state JSON to clipboard')
+    } catch (error) {
+      const message = importErrorMessage(error, 'clipboard')
+      setStatus(`${message.body} ${message.nextStep}`)
+    }
+  }
+
+  async function loadSample() {
+    const sample = createSampleImport()
+    await onImport(sample)
+    setStatus(`Loaded ${sample.highlights.length} sample highlights`)
+  }
+
+  async function clearWithConfirmation() {
+    if (
+      !window.confirm(
+        'Clear every local document, highlight, embedding, and activity entry in this browser?',
+      )
+    ) {
+      return
+    }
+
+    await onClear()
+    setStatus('Local library cleared')
   }
 
   return (
@@ -93,12 +254,25 @@ export function LibraryPanel({
           id="file-import"
           type="file"
           multiple
-          accept=".epub,.pdf,.txt,.md,application/pdf,application/epub+zip,text/*"
+          accept=".epub,.pdf,.txt,.md,.json,application/pdf,application/epub+zip,application/json,text/*"
           onChange={(event) => void handleFiles(event.target.files)}
         />
-        <label htmlFor="file-import">
+        <label
+          htmlFor="file-import"
+          className={isDragging ? 'is-dragging' : ''}
+          onDragOver={(event) => {
+            event.preventDefault()
+            setIsDragging(true)
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={(event) => {
+            event.preventDefault()
+            setIsDragging(false)
+            void handleFiles(event.dataTransfer.files)
+          }}
+        >
           <FileUp aria-hidden="true" />
-          Import EPUB, PDF, TXT
+          Import EPUB, PDF, TXT, backup
         </label>
         <p>{status || 'Files never leave this browser.'}</p>
       </div>
@@ -122,6 +296,14 @@ export function LibraryPanel({
       </div>
 
       <div className="button-row">
+        <button type="button" className="secondary-button" onClick={() => void importClipboard()}>
+          <ClipboardPaste aria-hidden="true" />
+          Import clipboard
+        </button>
+        <button type="button" className="secondary-button" onClick={() => void loadSample()}>
+          <Plus aria-hidden="true" />
+          Load sample
+        </button>
         <button
           type="button"
           className="secondary-button"
@@ -134,13 +316,20 @@ export function LibraryPanel({
         <button
           type="button"
           className="secondary-button"
-          onClick={() =>
-            downloadJson('highlight-recall-export.json', exportLibrary(documents, highlights))
-          }
+          onClick={() => downloadJson('highlight-recall-state.json', stateJson)}
           disabled={highlights.length === 0}
         >
           <Download aria-hidden="true" />
-          Export JSON
+          Download state
+        </button>
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() => void copyState()}
+          disabled={highlights.length === 0}
+        >
+          <Copy aria-hidden="true" />
+          Copy state
         </button>
       </div>
       {embeddingProgress ? <p className="muted">{embeddingProgress}</p> : null}
@@ -176,9 +365,24 @@ export function LibraryPanel({
       </div>
 
       {highlights.length ? (
-        <button type="button" className="danger-button" onClick={onClear}>
+        <button
+          type="button"
+          className="danger-button"
+          onClick={() => void clearWithConfirmation()}
+        >
           Clear local library
         </button>
+      ) : null}
+
+      {activity.length ? (
+        <div className="activity-list" aria-label="Recent activity">
+          {activity.slice(0, 5).map((item) => (
+            <p key={item.id}>
+              <strong>{item.message}</strong>
+              {item.detail ? <span>{item.detail}</span> : null}
+            </p>
+          ))}
+        </div>
       ) : null}
     </section>
   )

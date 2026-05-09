@@ -1,5 +1,6 @@
-import { Search, WandSparkles } from 'lucide-react'
+import { Copy, Search, WandSparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { copyText } from '../../domain/export'
 import { findSemanticMatches } from '../../ai/embeddings'
 import { searchHighlights } from '../../search/buildIndex'
 import type { Highlight, SearchHit, SourceDocument } from '../../domain/types'
@@ -13,6 +14,7 @@ export function SearchPanel({ highlights, byDocument }: Props) {
   const [query, setQuery] = useState('')
   const [semanticState, setSemanticState] = useState<'idle' | 'running' | 'unavailable'>('idle')
   const [semanticHits, setSemanticHits] = useState<SearchHit[]>([])
+  const [copyStatus, setCopyStatus] = useState('')
   const lexicalHits = useMemo(() => searchHighlights(highlights, query), [highlights, query])
   const hits = semanticHits.length ? semanticHits : lexicalHits
 
@@ -25,6 +27,15 @@ export function SearchPanel({ highlights, byDocument }: Props) {
     } catch {
       setSemanticHits([])
       setSemanticState('unavailable')
+    }
+  }
+
+  async function copyHighlight(text: string) {
+    try {
+      await copyText(text)
+      setCopyStatus('Copied result')
+    } catch {
+      setCopyStatus('Clipboard unavailable')
     }
   }
 
@@ -67,6 +78,8 @@ export function SearchPanel({ highlights, byDocument }: Props) {
         </p>
       ) : null}
 
+      {copyStatus ? <p className="muted">{copyStatus}</p> : null}
+
       <div className="search-results" aria-live="polite">
         {query && hits.length === 0 ? <p className="muted">No matching highlights yet.</p> : null}
         {hits.map(({ highlight, score }) => {
@@ -77,6 +90,14 @@ export function SearchPanel({ highlights, byDocument }: Props) {
                 {document?.title ?? 'Manual highlight'} · score {score.toFixed(2)}
               </p>
               <p>{highlight.text}</p>
+              <button
+                className="secondary-button compact-button"
+                type="button"
+                onClick={() => void copyHighlight(highlight.text)}
+              >
+                <Copy aria-hidden="true" />
+                Copy
+              </button>
             </article>
           )
         })}

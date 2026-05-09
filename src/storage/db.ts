@@ -1,10 +1,5 @@
 import { openDB, type DBSchema } from 'idb'
-import type { Highlight, SourceDocument } from '../domain/types'
-
-type Settings = {
-  key: string
-  value: unknown
-}
+import type { Activity, Highlight, SourceDocument } from '../domain/types'
 
 interface HighlightRecallDB extends DBSchema {
   documents: {
@@ -22,22 +17,37 @@ interface HighlightRecallDB extends DBSchema {
       'by-due-at': string
     }
   }
-  settings: {
+  activity: {
     key: string
-    value: Settings
+    value: Activity
+    indexes: {
+      'by-created-at': string
+    }
   }
 }
 
-const dbPromise = openDB<HighlightRecallDB>('highlight-recall', 1, {
-  upgrade(db) {
-    const documents = db.createObjectStore('documents', { keyPath: 'id' })
-    documents.createIndex('by-imported-at', 'importedAt')
+const dbPromise = openDB<HighlightRecallDB>('highlight-recall', 2, {
+  upgrade(db, oldVersion) {
+    if (oldVersion < 1) {
+      const documents = db.createObjectStore('documents', { keyPath: 'id' })
+      documents.createIndex('by-imported-at', 'importedAt')
 
-    const highlights = db.createObjectStore('highlights', { keyPath: 'id' })
-    highlights.createIndex('by-document', 'documentId')
-    highlights.createIndex('by-due-at', 'review.dueAt')
+      const highlights = db.createObjectStore('highlights', { keyPath: 'id' })
+      highlights.createIndex('by-document', 'documentId')
+      highlights.createIndex('by-due-at', 'review.dueAt')
+    }
 
-    db.createObjectStore('settings', { keyPath: 'key' })
+    if (oldVersion < 2) {
+      const activity = db.createObjectStore('activity', { keyPath: 'id' })
+      activity.createIndex('by-created-at', 'createdAt')
+      const rawDb = db as unknown as {
+        objectStoreNames: DOMStringList
+        deleteObjectStore: (name: string) => void
+      }
+      if (rawDb.objectStoreNames.contains('settings')) {
+        rawDb.deleteObjectStore('settings')
+      }
+    }
   },
 })
 
@@ -49,42 +59,73 @@ export async function getHighlights() {
   return (await dbPromise).getAll('highlights')
 }
 
-export async function saveImport(document: SourceDocument, highlights: Highlight[]) {
+export async function getActivity() {
+  return (await dbPromise).getAll('activity')
+}
+
+export async function saveImport(
+  document: SourceDocument,
+  highlights: Highlight[],
+  activity?: Activity,
+) {
   const db = await dbPromise
-  const tx = db.transaction(['documents', 'highlights'], 'readwrite')
+  const tx = db.transaction(['documents', 'highlights', 'activity'], 'readwrite')
   await tx.objectStore('documents').put(document)
   await Promise.all(highlights.map((highlight) => tx.objectStore('highlights').put(highlight)))
+  if (activity) await tx.objectStore('activity').put(activity)
   await tx.done
 }
 
-export async function saveHighlight(highlight: Highlight) {
-  await (await dbPromise).put('highlights', highlight)
-}
-
-export async function saveHighlights(highlights: Highlight[]) {
+export async function saveHighlight(highlight: Highlight, activity?: Activity) {
   const db = await dbPromise
-  const tx = db.transaction('highlights', 'readwrite')
-  await Promise.all(highlights.map((highlight) => tx.store.put(highlight)))
+  const tx = db.transaction(['highlights', 'activity'], 'readwrite')
+  await tx.objectStore('highlights').put(highlight)
+  if (activity) await tx.objectStore('activity').put(activity)
   await tx.done
 }
 
-export async function deleteHighlight(id: string) {
-  await (await dbPromise).delete('highlights', id)
+export async function saveHighlights(highlights: Highlight[], activity?: Activity) {
+  const db = await dbPromise
+  const tx = db.transaction(['highlights', 'activity'], 'readwrite')
+  await Promise.all(highlights.map((highlight) => tx.objectStore('highlights').put(highlight)))
+  if (activity) await tx.objectStore('activity').put(activity)
+  await tx.done
 }
 
-export async function clearLibrary() {
+export async function deleteHighlight(id: string, activity?: Activity) {
   const db = await dbPromise
-  const tx = db.transaction(['documents', 'highlights'], 'readwrite')
+  const tx = db.transaction(['highlights', 'activity'], 'readwrite')
+  await tx.objectStore('highlights').delete(id)
+  if (activity) await tx.objectStore('activity').put(activity)
+  await tx.done
+}
+
+export async function clearLibrary(activity?: Activity) {
+  const db = await dbPromise
+  const tx = db.transaction(['documents', 'highlights', 'activity'], 'readwrite')
   await tx.objectStore('documents').clear()
   await tx.objectStore('highlights').clear()
+  await tx.objectStore('activity').clear()
+  if (activity) await tx.objectStore('activity').put(activity)
   await tx.done
 }
 
-export async function getSetting<T>(key: string, fallback: T) {
-  const row = await (await dbPromise).get('settings', key)
-  return (row?.value as T | undefined) ?? fallback
-}
-
-export async function saveSetting<T>(key: string, value: T) {
-  await (await dbPromise).put('settings', { key, value })
+export async function replaceLibrary(input: {
+  documents: SourceDocument[]
+  highlights: Highlight[]
+  activity: Activity[]
+  restoreActivity: Activity
+}) {
+  const db = await dbPromise
+  const tx = db.transaction(['documents', 'highlights', 'activity'], 'readwrite')
+  await tx.objectStore('documents').clear()
+  await tx.objectStore('highlights').clear()
+  await tx.objectStore('activity').clear()
+  await Promise.all(input.documents.map((document) => tx.objectStore('documents').put(document)))
+  await Promise.all(
+    input.highlights.map((highlight) => tx.objectStore('highlights').put(highlight)),
+  )
+  await Promise.all(input.activity.map((activity) => tx.objectStore('activity').put(activity)))
+  await tx.objectStore('activity').put(input.restoreActivity)
+  await tx.done
 }

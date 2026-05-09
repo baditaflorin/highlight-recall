@@ -41,6 +41,15 @@ export const highlightSchema = z.object({
 })
 export type Highlight = z.infer<typeof highlightSchema>
 
+export const activitySchema = z.object({
+  id: z.string(),
+  type: z.enum(['import', 'restore', 'export', 'review', 'delete', 'clear', 'copy', 'sample']),
+  message: z.string(),
+  createdAt: z.string(),
+  detail: z.string().optional(),
+})
+export type Activity = z.infer<typeof activitySchema>
+
 export type ImportResult = {
   document: SourceDocument
   highlights: Highlight[]
@@ -49,10 +58,4 @@ export type ImportResult = {
 export type SearchHit = {
   highlight: Highlight
   score: number
-}
-
-export type AppMeta = {
-  version: string
-  commit: string
-  repositoryUrl: string
 }

@@ -1,6 +1,7 @@
-import { Brain, CalendarClock, Check, RotateCcw, Sparkles } from 'lucide-react'
+import { Brain, CalendarClock, Check, Copy, RotateCcw, Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { relativeDueLabel } from '../../domain/date'
+import { copyText } from '../../domain/export'
 import { dueHighlights } from '../../domain/spacedRepetition'
 import type { Highlight, ReviewGrade, SourceDocument } from '../../domain/types'
 import { buildRecallPrompt, generateRecallQuestion } from '../../ai/localLlm'
@@ -23,6 +24,7 @@ export function ReviewQueue({ highlights, byDocument, onReview }: Props) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [question, setQuestion] = useState('')
   const [aiState, setAiState] = useState<'idle' | 'prompt' | 'running'>('idle')
+  const [copyStatus, setCopyStatus] = useState('')
   const active = queue[Math.min(activeIndex, Math.max(queue.length - 1, 0))]
   const document = active ? byDocument.get(active.documentId) : undefined
 
@@ -37,6 +39,16 @@ export function ReviewQueue({ highlights, byDocument, onReview }: Props) {
       return
     }
     setAiState('idle')
+  }
+
+  async function copyReviewText() {
+    if (!active) return
+    try {
+      await copyText(question || active.text)
+      setCopyStatus('Copied')
+    } catch {
+      setCopyStatus('Clipboard unavailable')
+    }
   }
 
   if (!active) {
@@ -94,6 +106,10 @@ export function ReviewQueue({ highlights, byDocument, onReview }: Props) {
             : aiState === 'prompt'
               ? 'Prompt fallback shown'
               : 'AI recall prompt'}
+        </button>
+        <button className="secondary-button" type="button" onClick={() => void copyReviewText()}>
+          <Copy aria-hidden="true" />
+          {copyStatus || 'Copy card'}
         </button>
         <button
           className="icon-button"

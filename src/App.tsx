@@ -21,11 +21,14 @@ function App() {
   }
 
   async function handleReview(highlight: Highlight, grade: ReviewGrade) {
-    await library.updateHighlight({
-      ...highlight,
-      updatedAt: new Date().toISOString(),
-      review: scheduleReview(highlight.review, grade),
-    })
+    await library.updateHighlight(
+      {
+        ...highlight,
+        updatedAt: new Date().toISOString(),
+        review: scheduleReview(highlight.review, grade),
+      },
+      `Reviewed one highlight as ${grade}`,
+    )
     showToast(`Scheduled as ${grade}`)
   }
 
@@ -109,11 +112,12 @@ function App() {
             <LibraryPanel
               documents={library.documents}
               highlights={library.highlights}
+              activity={library.activity}
               onImport={(result) => library.importResult(result.document, result.highlights)}
               onHighlightsUpdate={library.updateHighlights}
-              onManualHighlight={library.updateHighlight}
               onDeleteHighlight={library.removeHighlight}
               onClear={library.clear}
+              onRestore={library.restore}
             />
             <SearchPanel highlights={library.highlights} byDocument={library.byDocument} />
           </section>
