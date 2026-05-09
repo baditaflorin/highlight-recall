@@ -8,6 +8,7 @@ export default defineConfig({
   },
   use: {
     baseURL: 'http://127.0.0.1:4173/highlight-recall/',
+    permissions: ['clipboard-read', 'clipboard-write'],
     trace: 'on-first-retry',
   },
   webServer: {
