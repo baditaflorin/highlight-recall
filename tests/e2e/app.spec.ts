@@ -81,4 +81,8 @@ test('restores state, imports clipboard text, reviews, searches, and clears', as
   await expect(
     page.getByLabel(/Find the line you almost/).getByText(/right idea at the right moment/),
   ).toBeVisible()
+
+  await page.getByLabel('Confirm before clearing the local library').uncheck()
+  await page.reload()
+  await expect(page.getByLabel('Confirm before clearing the local library')).not.toBeChecked()
 })

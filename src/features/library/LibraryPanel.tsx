@@ -23,16 +23,19 @@ import { detectFileKind } from '../../importers/detect'
 import { importFile } from '../../importers'
 import { enrichMissingEmbeddings } from '../../ai/embeddings'
 import { importTextContent } from '../../importers/text'
+import type { Preferences } from '../../domain/preferences'
 
 type Props = {
   documents: SourceDocument[]
   highlights: Highlight[]
   activity: Activity[]
+  preferences: Preferences
   onImport: (result: ImportResult) => Promise<void>
   onHighlightsUpdate: (highlights: Highlight[]) => Promise<void>
   onDeleteHighlight: (id: string) => Promise<void>
   onClear: () => Promise<void>
   onActivity: (type: Activity['type'], message: string, detail?: string) => Promise<void>
+  onPreferencesChange: (preferences: Preferences) => void
   onRestore: (state: {
     documents: SourceDocument[]
     highlights: Highlight[]
@@ -45,11 +48,13 @@ export function LibraryPanel({
   documents,
   highlights,
   activity,
+  preferences,
   onImport,
   onHighlightsUpdate,
   onDeleteHighlight,
   onClear,
   onActivity,
+  onPreferencesChange,
   onRestore,
 }: Props) {
   const [status, setStatus] = useState('')
@@ -256,6 +261,7 @@ export function LibraryPanel({
 
   async function clearWithConfirmation() {
     if (
+      preferences.confirmBeforeClear &&
       !window.confirm(
         'Clear every local document, highlight, embedding, and activity entry in this browser?',
       )
@@ -416,6 +422,23 @@ export function LibraryPanel({
           ))}
         </div>
       ) : null}
+
+      <section className="settings-panel" aria-labelledby="settings-heading">
+        <h3 id="settings-heading">Settings</h3>
+        <label>
+          <input
+            type="checkbox"
+            checked={preferences.confirmBeforeClear}
+            onChange={(event) =>
+              onPreferencesChange({
+                ...preferences,
+                confirmBeforeClear: event.target.checked,
+              })
+            }
+          />
+          Confirm before clearing the local library
+        </label>
+      </section>
     </section>
   )
 }

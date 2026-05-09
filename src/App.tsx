@@ -5,7 +5,9 @@ import { useLibrary } from './features/library/useLibrary'
 import { ReviewQueue } from './features/review/ReviewQueue'
 import { SearchPanel } from './features/search/SearchPanel'
 import { reviewLoad, scheduleReview } from './domain/spacedRepetition'
+import { defaultPreferences, type Preferences } from './domain/preferences'
 import type { Highlight, ReviewGrade } from './domain/types'
+import { loadPreferences, savePreferences } from './storage/preferences'
 
 const repositoryUrl = __REPOSITORY_URL__
 const paypalUrl = 'https://www.paypal.com/paypalme/florinbadita'
@@ -13,6 +15,10 @@ const paypalUrl = 'https://www.paypal.com/paypalme/florinbadita'
 function App() {
   const library = useLibrary()
   const [toast, setToast] = useState('')
+  const [preferences, setPreferences] = useState<Preferences>(() => {
+    if (typeof window === 'undefined') return defaultPreferences
+    return loadPreferences()
+  })
   const stats = useMemo(() => reviewLoad(library.highlights), [library.highlights])
 
   function showToast(message: string) {
@@ -30,6 +36,11 @@ function App() {
       `Reviewed one highlight as ${grade}`,
     )
     showToast(`Scheduled as ${grade}`)
+  }
+
+  function updatePreferences(nextPreferences: Preferences) {
+    setPreferences(nextPreferences)
+    savePreferences(nextPreferences)
   }
 
   return (
@@ -113,11 +124,13 @@ function App() {
               documents={library.documents}
               highlights={library.highlights}
               activity={library.activity}
+              preferences={preferences}
               onImport={(result) => library.importResult(result.document, result.highlights)}
               onHighlightsUpdate={library.updateHighlights}
               onDeleteHighlight={library.removeHighlight}
               onClear={library.clear}
               onActivity={library.logActivity}
+              onPreferencesChange={updatePreferences}
               onRestore={library.restore}
             />
             <SearchPanel highlights={library.highlights} byDocument={library.byDocument} />
