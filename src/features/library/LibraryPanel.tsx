@@ -8,7 +8,7 @@ import {
   Trash2,
   WandSparkles,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ClipboardEvent } from 'react'
 import { importErrorMessage, zeroHighlightMessage } from '../../domain/errors'
 import { copyText, downloadJson } from '../../domain/export'
 import { createSampleImport } from '../../domain/sample'
@@ -32,6 +32,7 @@ type Props = {
   onHighlightsUpdate: (highlights: Highlight[]) => Promise<void>
   onDeleteHighlight: (id: string) => Promise<void>
   onClear: () => Promise<void>
+  onActivity: (type: Activity['type'], message: string, detail?: string) => Promise<void>
   onRestore: (state: {
     documents: SourceDocument[]
     highlights: Highlight[]
@@ -48,6 +49,7 @@ export function LibraryPanel({
   onHighlightsUpdate,
   onDeleteHighlight,
   onClear,
+  onActivity,
   onRestore,
 }: Props) {
   const [status, setStatus] = useState('')
@@ -207,14 +209,43 @@ export function LibraryPanel({
     }
   }
 
+  function handleManualPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const html = event.clipboardData.getData('text/html')
+    if (!html) return
+
+    const doc = new DOMParser().parseFromString(html, 'text/html')
+    doc.querySelectorAll('script, style, nav').forEach((node) => node.remove())
+    const text = doc.body.textContent?.replace(/\s+/g, ' ').trim()
+    if (!text) return
+
+    event.preventDefault()
+    setManualText(text)
+    setStatus('Cleaned pasted HTML into readable text')
+  }
+
   async function copyState() {
     try {
       await copyText(stateJson)
+      await onActivity(
+        'copy',
+        'Copied state JSON to clipboard',
+        stateSummary({ documents, highlights, activity }),
+      )
       setStatus('Copied state JSON to clipboard')
     } catch (error) {
       const message = importErrorMessage(error, 'clipboard')
       setStatus(`${message.body} ${message.nextStep}`)
     }
+  }
+
+  async function downloadState() {
+    downloadJson('highlight-recall-state.json', stateJson)
+    await onActivity(
+      'export',
+      'Downloaded state JSON',
+      stateSummary({ documents, highlights, activity }),
+    )
+    setStatus('Downloaded state JSON')
   }
 
   async function loadSample() {
@@ -281,6 +312,7 @@ export function LibraryPanel({
         <textarea
           value={manualText}
           onChange={(event) => setManualText(event.target.value)}
+          onPaste={handleManualPaste}
           placeholder="Paste a highlight worth revisiting"
           rows={4}
         />
@@ -316,7 +348,7 @@ export function LibraryPanel({
         <button
           type="button"
           className="secondary-button"
-          onClick={() => downloadJson('highlight-recall-state.json', stateJson)}
+          onClick={() => void downloadState()}
           disabled={highlights.length === 0}
         >
           <Download aria-hidden="true" />

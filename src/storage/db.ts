@@ -63,6 +63,10 @@ export async function getActivity() {
   return (await dbPromise).getAll('activity')
 }
 
+export async function saveActivity(activity: Activity) {
+  await (await dbPromise).put('activity', activity)
+}
+
 export async function saveImport(
   document: SourceDocument,
   highlights: Highlight[],

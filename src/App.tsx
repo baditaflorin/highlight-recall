@@ -117,6 +117,7 @@ function App() {
               onHighlightsUpdate={library.updateHighlights}
               onDeleteHighlight={library.removeHighlight}
               onClear={library.clear}
+              onActivity={library.logActivity}
               onRestore={library.restore}
             />
             <SearchPanel highlights={library.highlights} byDocument={library.byDocument} />

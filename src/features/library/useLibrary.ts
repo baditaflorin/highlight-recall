@@ -8,6 +8,7 @@ import {
   getDocuments,
   getHighlights,
   replaceLibrary as replaceStoredLibrary,
+  saveActivity,
   saveHighlight,
   saveHighlights,
   saveImport,
@@ -117,6 +118,14 @@ export function useLibrary() {
     await refresh()
   }, [refresh])
 
+  const logActivity = useCallback(
+    async (type: Activity['type'], message: string, detail?: string) => {
+      await saveActivity(createActivity(type, message, detail))
+      await refresh()
+    },
+    [refresh],
+  )
+
   const restore = useCallback(
     async (input: {
       documents: SourceDocument[]
@@ -152,6 +161,7 @@ export function useLibrary() {
     updateHighlights,
     removeHighlight,
     clear,
+    logActivity,
     restore,
     refresh,
   }
