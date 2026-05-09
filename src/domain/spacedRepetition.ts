@@ -60,3 +60,20 @@ export function reviewLoad(highlights: Highlight[], at = new Date()) {
 
   return { due, learned, lapses }
 }
+
+export function recallForecast(highlights: Highlight[], days = 7, startAt = new Date()) {
+  const forecast = []
+  for (let i = 0; i <= days; i++) {
+    const date = addDays(startAt, i)
+    const dueCount = highlights.filter((h) => {
+      const due = new Date(h.review.dueAt)
+      return (
+        due.getFullYear() === date.getFullYear() &&
+        due.getMonth() === date.getMonth() &&
+        due.getDate() === date.getDate()
+      )
+    }).length
+    forecast.push({ date: date.toISOString(), count: dueCount })
+  }
+  return forecast
+}

@@ -2,6 +2,7 @@ import { BookOpenCheck, HeartHandshake, RefreshCw, ShieldCheck, Star, Stars } fr
 import { useMemo, useState } from 'react'
 import { LibraryPanel } from './features/library/LibraryPanel'
 import { useLibrary } from './features/library/useLibrary'
+import { RecallForecast } from './features/review/RecallForecast'
 import { ReviewQueue } from './features/review/ReviewQueue'
 import { SearchPanel } from './features/search/SearchPanel'
 import { reviewLoad, scheduleReview } from './domain/spacedRepetition'
@@ -120,6 +121,7 @@ function App() {
               byDocument={library.byDocument}
               onReview={(highlight, grade) => void handleReview(highlight, grade)}
             />
+            <RecallForecast highlights={library.highlights} />
             <LibraryPanel
               documents={library.documents}
               highlights={library.highlights}

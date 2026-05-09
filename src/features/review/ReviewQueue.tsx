@@ -80,15 +80,28 @@ export function ReviewQueue({ highlights, byDocument, onReview }: Props) {
       </header>
 
       <article className="review-card">
-        <p className="source-line">
-          {document?.title ?? 'Manual highlight'} · {active.location ?? 'Saved'}
-        </p>
+        <div className="card-top">
+          <p className="source-line">
+            {document?.title ?? 'Manual highlight'} · {active.location ?? 'Saved'}
+          </p>
+          <div className="relative-due text-gradient">
+            {relativeDueLabel(active.review.dueAt)}
+          </div>
+        </div>
         <blockquote>{active.text}</blockquote>
-        {active.note ? <p className="note-line">{active.note}</p> : null}
-        <p className="muted">
-          {relativeDueLabel(active.review.dueAt)} · interval {active.review.intervalDays}d · ease{' '}
-          {active.review.ease.toFixed(2)}
-        </p>
+        {active.note ? (
+          <div className="note-box">
+            <span className="note-label">Personal Note</span>
+            <p className="note-line">{active.note}</p>
+          </div>
+        ) : null}
+        <footer className="card-footer">
+          <div className="srs-metrics">
+            <span>Interval: <strong>{active.review.intervalDays}d</strong></span>
+            <span>Ease: <strong>{active.review.ease.toFixed(2)}</strong></span>
+            <span>Reps: <strong>{active.review.repetitions}</strong></span>
+          </div>
+        </footer>
       </article>
 
       {question ? (
