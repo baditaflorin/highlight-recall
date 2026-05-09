@@ -58,7 +58,9 @@ test('restores state, imports clipboard text, reviews, searches, and clears', as
   await expect(page.getByText(/Restored 1 documents, 1 highlights/)).toBeVisible()
 
   await page.getByPlaceholder(/Search highlights/).fill('between browsers')
-  await expect(page.getByText(/without asking for an account/)).toBeVisible()
+  await expect(
+    page.getByLabel(/Find the line you almost/).getByText(/without asking for an account/),
+  ).toBeVisible()
 
   page.once('dialog', (dialog) => void dialog.accept())
   await page.getByRole('button', { name: /Clear local library/ }).click()

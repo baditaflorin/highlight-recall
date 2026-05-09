@@ -78,13 +78,15 @@ export function LibraryPanel({
 
   async function restoreStateFile(file: File) {
     const state = parseLibraryState(await file.text())
+    const summary = stateSummary(state)
     await onRestore({
       documents: state.documents,
       highlights: state.highlights,
       activity: state.activity,
-      detail: `${file.name}: ${stateSummary(state)}`,
+      detail: `${file.name}: ${summary}`,
     })
-    setStatus(`Restored ${stateSummary(state)} from ${file.name}`)
+    setStatus(`Restored ${summary} from ${file.name}`)
+    return summary
   }
 
   async function handleFiles(files: Iterable<File> | null) {
@@ -92,7 +94,7 @@ export function LibraryPanel({
     if (!batch.length) return
 
     let imported = 0
-    let restored = 0
+    const restoreSummaries: string[] = []
     const failures: string[] = []
 
     for (const file of batch) {
@@ -101,8 +103,7 @@ export function LibraryPanel({
         const kind = await detectFileKind(file)
 
         if (kind === 'state') {
-          await restoreStateFile(file)
-          restored += 1
+          restoreSummaries.push(await restoreStateFile(file))
           continue
         }
 
@@ -122,7 +123,11 @@ export function LibraryPanel({
 
     const summary = [
       imported ? `${imported} highlights imported` : '',
-      restored ? `${restored} backup restored` : '',
+      restoreSummaries.length === 1
+        ? `Restored ${restoreSummaries[0]}`
+        : restoreSummaries.length
+          ? `${restoreSummaries.length} backups restored`
+          : '',
       failures.length
         ? `${failures.length} issue${failures.length === 1 ? '' : 's'}: ${failures.join(' ')}`
         : '',
