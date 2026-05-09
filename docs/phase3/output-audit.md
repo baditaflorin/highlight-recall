@@ -1,0 +1,15 @@
+# Phase 3 Output Audit
+
+| Output pathway              | Status before | Evidence                                                                                                        | User impact                                             | Phase 3 decision                                        |
+| --------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------- |
+| JSON export                 | yellow        | Exports documents/highlights with timestamp, but no import path and no provenance fields beyond schema version. | Useful as a download, not a real backup.                | Make canonical state file and round-trip it.            |
+| JSON import/restore         | red           | No UI or parser for exported JSON.                                                                              | Users cannot restore or move devices.                   | Add import path and validation.                         |
+| Copy highlight to clipboard | gray          | No copy control.                                                                                                | Review/search output is harder to use in notes.         | Add copy on current review and search results.          |
+| Copy full export            | gray          | No copy output.                                                                                                 | Small libraries cannot be moved without file download.  | Add copy state JSON.                                    |
+| Shareable URL               | gray          | Not built.                                                                                                      | Large local library cannot safely fit in URL.           | Out of scope for state; document limit.                 |
+| Print-friendly review       | gray          | Browser print works poorly with full app chrome.                                                                | Users cannot make a paper review list.                  | Add minimal print CSS for existing view, no new screen. |
+| CSV export                  | gray          | Not claimed.                                                                                                    | Useful later but not required for a reading review app. | Out of scope.                                           |
+| API/curl-ready output       | gray          | Static app has no API.                                                                                          | Not relevant to Mode A.                                 | Out of scope; JSON schema is automation-ready.          |
+| Downloadable state file     | yellow        | Existing JSON is close but incomplete for future compatibility.                                                 | Backup exists but trust is low.                         | Upgrade export contract and docs.                       |
+
+Before counts: green 0, yellow 2, red 1, gray 6.
