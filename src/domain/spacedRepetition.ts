@@ -1,13 +1,18 @@
 import type { Highlight, ReviewGrade, ReviewState } from './types'
 import { addDays, nowIso } from './date'
 
-export const initialReviewState = (createdAt = nowIso()): ReviewState => ({
-  dueAt: createdAt,
-  intervalDays: 0,
-  ease: 2.5,
-  repetitions: 0,
-  lapses: 0,
-})
+export const initialReviewState = (createdAt = nowIso()): ReviewState => {
+  // Add a small jitter (0-3 days) to new highlights so they don't all land on day 1
+  const jitter = Math.floor(Math.random() * 4)
+  const dueAt = addDays(new Date(createdAt), jitter).toISOString()
+  return {
+    dueAt,
+    intervalDays: jitter,
+    ease: 2.5,
+    repetitions: 0,
+    lapses: 0,
+  }
+}
 
 export function scheduleReview(state: ReviewState, grade: ReviewGrade, reviewedAt = new Date()) {
   const next = { ...state }
@@ -61,7 +66,7 @@ export function reviewLoad(highlights: Highlight[], at = new Date()) {
   return { due, learned, lapses }
 }
 
-export function recallForecast(highlights: Highlight[], days = 7, startAt = new Date()) {
+export function recallForecast(highlights: Highlight[], days = 14, startAt = new Date()) {
   const forecast = []
   for (let i = 0; i <= days; i++) {
     const date = addDays(startAt, i)

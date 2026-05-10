@@ -45,6 +45,11 @@ type Props = {
   byDocument: Map<string, SourceDocument>
 }
 
+type StagedImport = {
+  document: SourceDocument
+  highlights: Highlight[]
+}
+
 export function LibraryPanel({
   documents,
   highlights,
@@ -64,6 +69,7 @@ export function LibraryPanel({
   const [manualNote, setManualNote] = useState('')
   const [embeddingProgress, setEmbeddingProgress] = useState('')
   const [isDragging, setIsDragging] = useState(false)
+  const [staged, setStaged] = useState<StagedImport | null>(null)
   const stateJson = useMemo(
     () =>
       serializeLibraryState(
@@ -115,8 +121,8 @@ export function LibraryPanel({
           failures.push(`${message.title}. ${message.nextStep}`)
           continue
         }
-        await onImport(result)
-        imported += result.highlights.length
+        setStaged(result)
+        return // Stop batch processing to allow staging
       } catch (error) {
         const message = importErrorMessage(error, file.name)
         failures.push(`${message.title}. ${message.nextStep}`)
@@ -320,6 +326,48 @@ export function LibraryPanel({
         </label>
         <p>{status || 'Files never leave this browser.'}</p>
       </div>
+
+      {staged && (
+        <div className="staged-preview">
+          <header className="panel-header">
+            <div>
+              <p className="eyebrow">Review before import</p>
+              <h3>{staged.highlights.length} potential highlights from {staged.document.fileName}</h3>
+            </div>
+            <div className="button-row">
+              <button className="secondary-button" onClick={() => setStaged(null)}>Cancel</button>
+              <button 
+                className="primary-button" 
+                onClick={async () => {
+                  await onImport(staged)
+                  setStaged(null)
+                  setStatus(`Imported ${staged.highlights.length} highlights`)
+                }}
+              >
+                Confirm Import
+              </button>
+            </div>
+          </header>
+          <div className="staged-list">
+            {staged.highlights.map((h, i) => (
+              <div key={i} className="staged-row">
+                <p>{h.text}</p>
+                <button 
+                  className="icon-button" 
+                  onClick={() => {
+                    setStaged({
+                      ...staged,
+                      highlights: staged.highlights.filter((_, idx) => idx !== i)
+                    })
+                  }}
+                >
+                  <Trash2 />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="manual-form">
         <textarea

@@ -1,4 +1,4 @@
-import { Brain, CalendarClock, Check, Copy, RotateCcw, Sparkles } from 'lucide-react'
+import { Brain, CalendarClock, Check, Copy, Maximize2, Minimize2, RotateCcw, Sparkles } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { relativeDueLabel } from '../../domain/date'
 import { copyText } from '../../domain/export'
@@ -25,6 +25,7 @@ export function ReviewQueue({ highlights, byDocument, onReview }: Props) {
   const [question, setQuestion] = useState('')
   const [aiState, setAiState] = useState<'idle' | 'prompt' | 'running'>('idle')
   const [copyStatus, setCopyStatus] = useState('')
+  const [isFocusMode, setIsFocusMode] = useState(false)
   const active = queue[Math.min(activeIndex, Math.max(queue.length - 1, 0))]
   const document = active ? byDocument.get(active.documentId) : undefined
 
@@ -65,7 +66,7 @@ export function ReviewQueue({ highlights, byDocument, onReview }: Props) {
   }
 
   return (
-    <section className="panel review-panel" aria-labelledby="review-heading">
+    <section className={`panel review-panel ${isFocusMode ? 'focus-mode' : ''}`} aria-labelledby="review-heading">
       <header className="panel-header">
         <div>
           <p className="eyebrow">Daily review</p>
@@ -73,9 +74,19 @@ export function ReviewQueue({ highlights, byDocument, onReview }: Props) {
             {queue.length} due highlight{queue.length === 1 ? '' : 's'}
           </h2>
         </div>
-        <div className="counter-pill">
-          <CalendarClock aria-hidden="true" />
-          {activeIndex + 1} / {queue.length}
+        <div className="button-row">
+          <button 
+            className="icon-button" 
+            type="button" 
+            title={isFocusMode ? "Exit focus mode" : "Enter focus mode"}
+            onClick={() => setIsFocusMode(!isFocusMode)}
+          >
+            {isFocusMode ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
+          </button>
+          <div className="counter-pill">
+            <CalendarClock aria-hidden="true" />
+            {activeIndex + 1} / {queue.length}
+          </div>
         </div>
       </header>
 
