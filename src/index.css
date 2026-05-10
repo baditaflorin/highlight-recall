@@ -33,8 +33,8 @@
   --text-secondary: var(--color-slate-400);
   --text-inverse: #ffffff;
   
-  --accent: var(--color-indigo-500);
-  --accent-hover: var(--color-indigo-400);
+  --accent: #312e81; /* Deep Indigo for better blending */
+  --accent-hover: var(--color-indigo-700);
   
   --border: rgba(255, 255, 255, 0.08);
   --border-subtle: rgba(255, 255, 255, 0.04);
@@ -49,22 +49,22 @@
 }
 
 [data-theme="light"] {
-  --bg-page: #f1f5f9;
+  --bg-page: #f8fafc;
   --bg-panel: #ffffff;
-  --bg-surface: #f8fafc;
-  --bg-surface-hover: #f1f5f9;
+  --bg-surface: #f1f5f9;
+  --bg-surface-hover: #e2e8f0;
   
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-primary: #020617;
+  --text-secondary: #334155;
   --text-inverse: #ffffff;
   
   --accent: var(--color-indigo-600);
-  --accent-hover: var(--color-indigo-500);
+  --accent-hover: var(--color-indigo-700);
   
   --border: #e2e8f0;
   --border-subtle: #f1f5f9;
   
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -106,11 +106,14 @@ main {
   min-height: 100vh;
   color: var(--text-primary);
   background-color: var(--bg-page);
-  background-image: 
-    radial-gradient(at 0% 0%, hsla(253,16%,7%,0.2) 0, transparent 50%), 
-    radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
-    radial-gradient(at 100% 0%, hsla(339,49%,30%,0.2) 0, transparent 50%);
   transition: background-color 0.3s ease;
+}
+
+[data-theme="dark"] main {
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,0.4) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,0.3) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(339,49%,30%,0.3) 0, transparent 50%);
 }
 
 .text-gradient {
@@ -772,7 +775,14 @@ blockquote {
   color: var(--text-primary);
   background: var(--bg-surface);
   border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
   transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .search-box input {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: var(--border-subtle);
 }
 
 .manual-form textarea:focus,
