@@ -320,13 +320,24 @@ a svg {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 2000;
+  z-index: 9999;
   background: #0f172a;
   border-radius: 0;
   display: flex;
   flex-direction: column;
   padding: clamp(24px, 5vw, 64px);
   overflow-y: auto;
+}
+
+/* Hide everything else when focus mode is active */
+body:has(.focus-mode) .topbar,
+body:has(.focus-mode) .hero-band,
+body:has(.focus-mode) .forecast-panel,
+body:has(.focus-mode) .library-panel,
+body:has(.focus-mode) .search-panel {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .focus-mode .review-card {
