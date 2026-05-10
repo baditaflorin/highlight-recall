@@ -1,5 +1,5 @@
-import { BookOpenCheck, HeartHandshake, RefreshCw, ShieldCheck, Star, Stars } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { BookOpenCheck, HeartHandshake, Moon, RefreshCw, ShieldCheck, Star, Stars, Sun } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { LibraryPanel } from './features/library/LibraryPanel'
 import { useLibrary } from './features/library/useLibrary'
 import { RecallForecast } from './features/review/RecallForecast'
@@ -20,6 +20,15 @@ function App() {
     if (typeof window === 'undefined') return defaultPreferences
     return loadPreferences()
   })
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    (localStorage.getItem('theme') as 'light' | 'dark') || 'dark',
+  )
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
   const stats = useMemo(() => reviewLoad(library.highlights), [library.highlights])
 
   function showToast(message: string) {
@@ -67,6 +76,13 @@ function App() {
               <HeartHandshake aria-hidden="true" />
               Support
             </a>
+            <button
+              className="icon-button"
+              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
           </nav>
         </header>
 

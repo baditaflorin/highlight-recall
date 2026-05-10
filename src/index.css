@@ -3,20 +3,68 @@
 @tailwind utilities;
 
 :root {
-  color: #f1f5f9;
-  background: #0f172a;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  /* Color Palette - Tokens */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  
+  --color-violet-400: #a78bfa;
+  --color-violet-500: #8b5cf6;
+  --color-violet-600: #7c3aed;
+  
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-900: #064e3b;
+
+  /* Semantic Variables - Default (Dark) */
+  --bg-page: var(--color-slate-900);
+  --bg-panel: rgba(30, 41, 59, 0.5);
+  --bg-surface: rgba(255, 255, 255, 0.05);
+  --bg-surface-hover: rgba(255, 255, 255, 0.08);
+  
+  --text-primary: var(--color-slate-100);
+  --text-secondary: var(--color-slate-400);
+  --text-inverse: var(--color-slate-900);
+  
+  --accent: var(--color-violet-400);
+  --accent-hover: var(--color-violet-500);
+  
+  --border: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  
+  --shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme="light"] {
+  --bg-page: var(--color-slate-50);
+  --bg-panel: #ffffff;
+  --bg-surface: var(--color-slate-100);
+  --bg-surface-hover: var(--color-slate-200);
+  
+  --text-primary: var(--color-slate-800);
+  --text-secondary: var(--color-slate-600);
+  --text-inverse: #ffffff;
+  
+  --accent: var(--color-violet-600);
+  --accent-hover: var(--color-violet-500);
+  
+  --border: var(--color-slate-200);
+  --border-subtle: var(--color-slate-100);
+  
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 * {
@@ -56,12 +104,13 @@ a {
 
 main {
   min-height: 100vh;
-  color: #f8fafc;
-  background-color: #0f172a;
+  color: var(--text-primary);
+  background-color: var(--bg-page);
   background-image: 
-    radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-    radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-    radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,0.2) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(339,49%,30%,0.2) 0, transparent 50%);
+  transition: background-color 0.3s ease;
 }
 
 .text-gradient {
@@ -307,10 +356,10 @@ a svg {
 .panel {
   border-radius: 24px;
   padding: 32px;
-  background: rgba(30, 41, 59, 0.5);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  background: var(--bg-panel);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -437,14 +486,14 @@ body:has(.focus-mode) .search-panel {
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-surface);
   border-radius: 12px;
   font-size: 0.95rem;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 .forecast-summary strong {
-  color: #a78bfa;
+  color: var(--accent);
 }
 
 .panel-header {
@@ -472,8 +521,8 @@ body:has(.focus-mode) .search-panel {
 .document-row,
 .ai-output {
   border-radius: 16px;
-  background: rgba(15, 23, 42, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
 }
 
 .review-card {
@@ -600,8 +649,8 @@ blockquote {
 
 .grade-grid button,
 .manual-form button {
-  color: white;
-  background: #1f6f5f;
+  color: var(--text-inverse);
+  background: var(--accent);
   font-weight: 800;
 }
 
@@ -636,10 +685,11 @@ blockquote {
   place-items: center;
   min-height: 152px;
   padding: 20px;
-  border: 1px dashed rgb(31 111 95 / 0.55);
-  border-radius: 8px;
-  background: #f8faf7;
+  border: 2px dashed var(--accent);
+  border-radius: 16px;
+  background: var(--bg-surface);
   text-align: center;
+  transition: all 0.2s ease;
 }
 
 .import-zone input {
@@ -665,8 +715,8 @@ blockquote {
 .staged-preview {
   margin: 32px 0;
   padding: 24px;
-  background: rgba(124, 58, 237, 0.05);
-  border: 2px dashed rgba(124, 58, 237, 0.2);
+  background: var(--bg-surface);
+  border: 2px dashed var(--accent);
   border-radius: 16px;
 }
 
@@ -707,17 +757,17 @@ blockquote {
   width: 100%;
   border: 0;
   outline: 0;
-  color: #f1f5f9;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   transition: all 0.2s ease;
 }
 
 .manual-form textarea:focus,
 .manual-form input:focus,
 .search-box input:focus {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: #7c3aed;
+  background: var(--bg-surface-hover);
+  border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
 }
 
@@ -779,13 +829,13 @@ blockquote {
 .activity-list p {
   margin: 0;
   padding: 12px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  color: #94a3b8;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
 .activity-list strong {
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .activity-list strong,
