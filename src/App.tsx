@@ -88,11 +88,12 @@ function App() {
 
         <section className="hero-band" aria-label="Overview">
           <div>
-            <p className="eyebrow">No account, no server, no reading trail to leak</p>
-            <h2>Your highlights should come back when they matter.</h2>
+            <p className="eyebrow">The 100% Private Readwise Alternative</p>
+            <h2>Master everything you read.</h2>
             <p>
-              Import EPUB/PDF notes, search them locally, and let spaced repetition make your
-              reading library useful again.
+              Import EPUBs and PDFs. We extract the best parts, store them locally, 
+              and use spaced repetition to make sure you actually remember them.
+              No account. No servers. No tracking.
             </p>
           </div>
           <div className="metric-strip" aria-label="Library metrics">
@@ -114,15 +115,15 @@ function App() {
         <section className="trust-strip" aria-label="Privacy guarantees">
           <div>
             <ShieldCheck aria-hidden="true" />
-            Browser-only storage
+            <strong>Total Privacy</strong>: Your data never leaves this browser.
           </div>
           <div>
             <RefreshCw aria-hidden="true" />
-            SM-2 style review schedule
+            <strong>SM-2 Algorithm</strong>: Intelligent scheduling for long-term recall.
           </div>
           <div>
             <Stars aria-hidden="true" />
-            Lazy local AI helpers
+            <strong>Local AI</strong>: Semantic search powered by your own device.
           </div>
         </section>
 

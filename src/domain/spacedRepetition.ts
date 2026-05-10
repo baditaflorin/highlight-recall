@@ -2,8 +2,8 @@ import type { Highlight, ReviewGrade, ReviewState } from './types'
 import { addDays, nowIso } from './date'
 
 export const initialReviewState = (createdAt = nowIso()): ReviewState => {
-  // Add a small jitter (0-3 days) to new highlights so they don't all land on day 1
-  const jitter = Math.floor(Math.random() * 4)
+  // Spread new imports across the first 10 days to avoid massive spikes
+  const jitter = Math.floor(Math.random() * 11)
   const dueAt = addDays(new Date(createdAt), jitter).toISOString()
   return {
     dueAt,
