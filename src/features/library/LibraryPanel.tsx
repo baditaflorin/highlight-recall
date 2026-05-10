@@ -335,13 +335,31 @@ export function LibraryPanel({
               <h3>{staged.highlights.length} potential highlights from {staged.document.fileName}</h3>
             </div>
             <div className="button-row">
+              <button 
+                className="secondary-button" 
+                onClick={() => {
+                  const filtered = staged.highlights.filter(h => {
+                    const wordCount = h.text.split(/\s+/).length
+                    const isMetadata = /Page \d+|All rights reserved|Published in/i.test(h.text)
+                    return wordCount >= 20 && !isMetadata // Even stricter for smart scan
+                  })
+                  setStaged({
+                    ...staged,
+                    highlights: filtered
+                  })
+                  setStatus(`Smart Scan removed ${staged.highlights.length - filtered.length} low-quality highlights`)
+                }}
+              >
+                <WandSparkles aria-hidden="true" />
+                Smart Scan
+              </button>
               <button className="secondary-button" onClick={() => setStaged(null)}>Cancel</button>
               <button 
                 className="primary-button" 
                 onClick={async () => {
                   await onImport(staged)
                   setStaged(null)
-                  setStatus(`Imported ${staged.highlights.length} highlights`)
+                  setStatus(`Imported ${staged.highlights.length} high-quality highlights`)
                 }}
               >
                 Confirm Import

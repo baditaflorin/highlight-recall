@@ -15,8 +15,15 @@ export function splitIntoHighlightCandidates(text: string) {
 
   return sentences
     .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence.length >= 48 && sentence.length <= 800)
-    .slice(0, 250)
+    .filter((sentence) => {
+      // "Smarter" filtering to remove junk
+      const wordCount = sentence.split(/\s+/).length
+      const isTooShort = sentence.length < 90 || wordCount < 18
+      const isMetadata = /Page \d+|All rights reserved|Published in/i.test(sentence)
+
+      return !isTooShort && !isMetadata && sentence.length <= 1200
+    })
+    .slice(0, 400) // Allow more candidates for larger books, but keep it manageable
 }
 
 export function titleFromFileName(fileName: string) {
