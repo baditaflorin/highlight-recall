@@ -42,6 +42,7 @@ type Props = {
     activity: Activity[]
     detail: string
   }) => Promise<void>
+  byDocument: Map<string, SourceDocument>
 }
 
 export function LibraryPanel({
@@ -56,6 +57,7 @@ export function LibraryPanel({
   onActivity,
   onPreferencesChange,
   onRestore,
+  byDocument,
 }: Props) {
   const [status, setStatus] = useState('')
   const [manualText, setManualText] = useState('')
@@ -391,20 +393,26 @@ export function LibraryPanel({
       </div>
 
       <div className="recent-list">
-        {highlights.slice(0, 6).map((highlight) => (
-          <article key={highlight.id} className="highlight-row">
-            <p>{highlight.text}</p>
-            <button
-              type="button"
-              className="icon-button"
-              aria-label="Delete highlight"
-              title="Delete highlight"
-              onClick={() => void onDeleteHighlight(highlight.id)}
-            >
-              <Trash2 aria-hidden="true" />
-            </button>
-          </article>
-        ))}
+        {highlights.slice(0, 10).map((highlight) => {
+          const document = byDocument.get(highlight.documentId)
+          return (
+            <article key={highlight.id} className="highlight-row">
+              <div className="highlight-content">
+                <p className="source-line">{document?.title ?? 'Manual'}</p>
+                <p>{highlight.text}</p>
+              </div>
+              <button
+                type="button"
+                className="icon-button"
+                aria-label="Delete highlight"
+                title="Delete highlight"
+                onClick={() => void onDeleteHighlight(highlight.id)}
+              >
+                <Trash2 aria-hidden="true" />
+              </button>
+            </article>
+          )
+        })}
       </div>
 
       {highlights.length ? (

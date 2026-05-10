@@ -126,6 +126,7 @@ function App() {
               documents={library.documents}
               highlights={library.highlights}
               activity={library.activity}
+              byDocument={library.byDocument}
               preferences={preferences}
               onImport={(result) => library.importResult(result.document, result.highlights)}
               onHighlightsUpdate={library.updateHighlights}
