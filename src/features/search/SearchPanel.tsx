@@ -44,7 +44,7 @@ export function SearchPanel({ highlights, byDocument }: Props) {
       <header className="panel-header">
         <div>
           <p className="eyebrow">Search</p>
-          <h2 id="search-heading">Find the line you almost remember</h2>
+          <h2 id="search-heading">Search your library</h2>
         </div>
       </header>
 

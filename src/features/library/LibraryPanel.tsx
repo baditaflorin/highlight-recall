@@ -290,8 +290,8 @@ export function LibraryPanel({
     <section className="panel library-panel" aria-labelledby="library-heading">
       <header className="panel-header">
         <div>
-          <p className="eyebrow">Library</p>
-          <h2 id="library-heading">Import, keep, and revisit</h2>
+          <p className="eyebrow">Collection</p>
+          <h2 id="library-heading">Library & Import</h2>
         </div>
         <div className="counter-pill">
           <Library aria-hidden="true" />
