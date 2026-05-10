@@ -144,7 +144,12 @@ export function ReviewQueue({ highlights, byDocument, onReview }: Props) {
             onClick={() => {
               onReview(active, item.grade)
               setQuestion('')
-              setActiveIndex(0)
+              // If we are at the end of the queue, or if the queue is about to shrink,
+              // resetting to 0 is safer. But for better UX, we'll try to just show the next one.
+              if (queue.length > 1) {
+                // Optimistically move to next or reset if at end
+                setActiveIndex(activeIndex >= queue.length - 1 ? 0 : activeIndex)
+              }
             }}
           >
             {item.label}
