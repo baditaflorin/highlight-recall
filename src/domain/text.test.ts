@@ -4,7 +4,9 @@ import { buildImportResult, splitIntoHighlightCandidates, titleFromFileName } fr
 describe('text extraction helpers', () => {
   it('splits prose into reviewable highlight candidates', () => {
     const candidates = splitIntoHighlightCandidates(
-      'Short. This sentence is long enough to become a useful review card for a future reader. Another useful sentence gives enough context to stand on its own.',
+      'Short. This sentence on its own is much too short to be a highlight. ' +
+        'This sentence is long enough to clear the eighteen word and ninety character minimums so it can become a useful review card for a future reader. ' +
+        'Another useful sentence, padded out with enough extra clauses and context, gives a future reader plenty of material to stand on its own as a highlight.',
     )
 
     expect(candidates).toHaveLength(2)
@@ -19,7 +21,7 @@ describe('text extraction helpers', () => {
       sections: [
         {
           location: 'Chapter 1',
-          text: 'This sentence is substantial enough to become a highlight candidate inside the review queue.',
+          text: 'This sentence is substantial and long enough, once padded out with extra clauses, to clear the review heuristics and become a highlight candidate inside the review queue.',
         },
       ],
     })

@@ -1,6 +1,6 @@
 import JSZip from 'jszip'
 import { checksum } from '../domain/id'
-import { buildImportResult, normalizeWhitespace } from '../domain/text'
+import { buildImportResult } from '../domain/text'
 
 type ManifestItem = {
   id: string
@@ -25,10 +25,30 @@ function resolvePath(base: string, href: string) {
   return new URL(href, `https://local.invalid/${base}`).pathname.slice(1)
 }
 
+// `Element.textContent` concatenates adjacent elements with no separator, so
+// "<p>First.</p><p>Second.</p>" reads back as "First.Second." with the
+// sentence boundary gone. That silently breaks two things downstream in
+// splitIntoHighlightCandidates: the sentence-break regex requires whitespace
+// after `.!?`, so merged paragraphs stop splitting into separate highlight
+// candidates; and worse, if any block anywhere in the run (e.g. a running
+// page-footer paragraph like "Page 12") gets glued onto real prose, the
+// "Page \d+" metadata filter discards the *entire* merged blob, silently
+// dropping a whole page or chapter's worth of genuine highlights. Insert an
+// explicit break after each block-level/line-break tag before parsing so
+// normalizeWhitespace has real whitespace to collapse at those boundaries.
+const blockBoundaryTags =
+  /<\/(p|div|li|h[1-6]|blockquote|section|article|tr|td|th)\s*>|<br\s*\/?\s*>/gi
+
 function textFromHtml(html: string) {
-  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const withBreaks = html.replace(blockBoundaryTags, (match) => `${match}\n`)
+  const doc = new DOMParser().parseFromString(withBreaks, 'text/html')
   doc.querySelectorAll('script, style, nav').forEach((node) => node.remove())
-  return normalizeWhitespace(doc.body?.textContent ?? '')
+  // Deliberately skip the shared normalizeWhitespace() here: it collapses
+  // newlines into a single space, which would erase the paragraph breaks
+  // just inserted above before splitIntoHighlightCandidates gets a chance to
+  // treat them as hard boundaries. Only trim the outer edges; intra-line
+  // whitespace is normalized per-paragraph downstream.
+  return (doc.body?.textContent ?? '').trim()
 }
 
 export async function importEpub(file: File) {

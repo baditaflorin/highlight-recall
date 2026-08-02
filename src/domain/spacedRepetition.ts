@@ -27,7 +27,15 @@ export function scheduleReview(state: ReviewState, grade: ReviewGrade, reviewedA
 
   if (grade === 'hard') {
     next.repetitions = state.repetitions + 1
-    next.intervalDays = Math.max(1, Math.ceil(Math.max(1, state.intervalDays) * 1.2))
+    // A highlight's initial due date is a random jitter (0-14 days, see
+    // initialReviewState) used only to spread first reviews out, not a real
+    // measure of recall strength. Basing the very first "hard" interval on
+    // that jitter (as `state.intervalDays * 1.2`) let it balloon past what
+    // "good" (fixed at 1 day) or even "easy" (fixed at 3 days) would produce
+    // for the same highlight, inverting the difficulty ordering. Anchor the
+    // first repetition to a fixed short interval like the other grades do.
+    next.intervalDays =
+      state.repetitions === 0 ? 1 : Math.max(1, Math.ceil(Math.max(1, state.intervalDays) * 1.2))
     next.ease = Math.max(1.3, oldEase - 0.15)
   }
 
