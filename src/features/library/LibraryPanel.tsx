@@ -101,7 +101,7 @@ export function LibraryPanel({
     const batch = files ? [...files] : []
     if (!batch.length) return
 
-    let imported = 0
+    const imported = 0
     const restoreSummaries: string[] = []
     const failures: string[] = []
 
