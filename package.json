@@ -18,7 +18,7 @@
     "smoke": "playwright test"
   },
   "dependencies": {
-    "@huggingface/transformers": "^4.2.0",
+    "@huggingface/transformers": "^4.3.0",
     "@mlc-ai/web-llm": "^0.2.83",
     "@tanstack/react-query": "^5.100.9",
     "idb": "^8.0.3",
